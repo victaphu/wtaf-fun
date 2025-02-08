@@ -35,8 +35,8 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
     // Game state variables
     GameState public currentState;
     Round public currentRound;
-    uint256 public constant ROUND_DURATION = 1 days;
-    uint256 public constant MINIMUM_STAKE = 0.1 ether;
+    uint256 public constant ROUND_DURATION = 1 minutes;
+    uint256 public constant MINIMUM_STAKE = 0.0001 ether;
     
     // Token tracking
     mapping(address => Token) public tokens;
@@ -105,10 +105,13 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
             tokens[tokenAddr].isAlive = false;
             
             uint256 index = tokenIndex[tokenAddr];
-            address lastToken = activeTokens[activeTokens.length - 1];
+            uint256 lastIndex = activeTokens.length - 1;
+            address lastToken = activeTokens[lastIndex];
             
-            activeTokens[index] = lastToken;
-            tokenIndex[lastToken] = index;
+            if (index != lastIndex) {
+                activeTokens[index] = lastToken;
+                tokenIndex[lastToken] = index;
+            }
             
             activeTokens.pop();
             delete tokenIndex[tokenAddr];

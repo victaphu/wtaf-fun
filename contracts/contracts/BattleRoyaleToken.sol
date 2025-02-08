@@ -9,6 +9,9 @@ contract BattleRoyaleToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     BattleRoyale public immutable gameContract;
     
+    string public emoji;
+    string public description;
+    
     event TokensBurned(address indexed from, uint256 amount);
     event TokensMinted(address indexed to, uint256 amount);
     
@@ -16,25 +19,33 @@ contract BattleRoyaleToken is ERC20, AccessControl {
         string memory name,
         string memory symbol,
         address _gameContract,
-        address admin
+        address admin,
+        string memory _emoji,
+        string memory _description
     ) ERC20(name, symbol) {
         gameContract = BattleRoyale(_gameContract);
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(MINTER_ROLE, admin);
+        emoji = _emoji;
+        description = _description;
     }
 
-    function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) {
+    modifier onlyAlive() {
         require(gameContract.isTokenAlive(address(this)), "Token eliminated");
+        _;
+    }
+
+    function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) onlyAlive {
         _mint(to, amount);
         emit TokensMinted(to, amount);
     }
 
-    function burn(uint256 amount) external {
+    function burn(uint256 amount) external onlyAlive {
         _burn(msg.sender, amount);
         emit TokensBurned(msg.sender, amount);
     }
 
-    function burnFrom(address account, uint256 amount) external {
+    function burnFrom(address account, uint256 amount) external onlyAlive {
         uint256 currentAllowance = allowance(account, msg.sender);
         require(currentAllowance >= amount, "ERC20: burn amount exceeds allowance");
         _approve(account, msg.sender, currentAllowance - amount);
@@ -49,22 +60,19 @@ contract BattleRoyaleToken is ERC20, AccessControl {
         return super.balanceOf(account);
     }
 
-    function transfer(address to, uint256 amount) public virtual override returns (bool) {
-        require(gameContract.isTokenAlive(address(this)), "Token eliminated");
+    function transfer(address to, uint256 amount) public virtual override onlyAlive returns (bool) {
         require(to != address(0), "Transfer to zero address");
         require(amount > 0, "Transfer amount must be positive");
         return super.transfer(to, amount);
     }
 
-    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
-        require(gameContract.isTokenAlive(address(this)), "Token eliminated");
+    function transferFrom(address from, address to, uint256 amount) public virtual override onlyAlive returns (bool) {
         require(to != address(0), "Transfer to zero address");
         require(amount > 0, "Transfer amount must be positive");
         return super.transferFrom(from, to, amount);
     }
 
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
-        require(gameContract.isTokenAlive(address(this)), "Token eliminated");
+    function approve(address spender, uint256 amount) public virtual override onlyAlive returns (bool) {
         require(spender != address(0), "Approve to zero address");
         return super.approve(spender, amount);
     }
