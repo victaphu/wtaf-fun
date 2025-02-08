@@ -46,7 +46,8 @@ export default function ArenaPage() {
         g.attr('transform', event.transform);
       });
 
-    svg.call(zoom);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    svg.call(zoom as any);
     
     const simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-10))
