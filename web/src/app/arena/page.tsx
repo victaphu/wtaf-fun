@@ -46,7 +46,7 @@ export default function ArenaPage() {
         g.attr('transform', event.transform);
       });
 
-    svg.call(zoom as any);
+    svg.call(zoom);
     
     const simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-10))
@@ -123,7 +123,7 @@ export default function ArenaPage() {
       ]);
 
       g.selectAll('.node')
-        .filter((d: any) => eliminatedNodes.some(n => n.id === d.id))
+        .filter((d) => eliminatedNodes.some(n => n.id === d.id))
         .transition()
         .duration(500)
         .attr('transform', d => `translate(${d.x},${d.y}) scale(2)`)

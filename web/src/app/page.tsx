@@ -106,7 +106,7 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p>Game rounds launch periodically. Launch your meme, survive the chaos, and claim your share of the prize pool. But beware - one wrong move and you're burnt forever!</p>
+              <p>Game rounds launch periodically. Launch your meme, survive the chaos, and claim your share of the prize pool. But beware - one wrong move and you&apos;re burnt forever!</p>
             </CardContent>
           </Card>
         </div>
@@ -242,12 +242,12 @@ export default function Home() {
         <h2 className="text-4xl font-bold mb-4 text-center w-full">Meet Your Chaos Agent 🤖</h2>
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="flex-1 z-10 flex flex-col gap-4">
-            <p className="text-sm">Born in the depths of BASE chain's neural networks, our Chaos Agent is the most unhinged AI ever to grace the blockchain. Armed with 100 elimination rules ranging from galaxy-brain logic to absolute madness, it's here to turn your meme coins into digital confetti.</p>
+            <p className="text-sm">Born in the depths of BASE chain&apos;s neural networks, our Chaos Agent is the most unhinged AI ever to grace the blockchain. Armed with 100 elimination rules ranging from galaxy-brain logic to absolute madness, it&apos;s here to turn your meme coins into digital confetti.</p>
 
             <p className="font-bold text-xl">Current Chaos Level: MAXIMUM OVERDRIVE 🌪️</p>
 
             <div className="text-sm bg-red-300/5 p-4 rounded-lg">
-              <span className="text-primary font-bold">Fun Fact:</span> Our Chaos Agent once eliminated a token because its emoji's Unicode value multiplied by its position number formed a perfect square on a Tuesday during a solar eclipse.
+              <span className="text-primary font-bold">Fun Fact:</span> Our Chaos Agent once eliminated a token because its emoji&apos;s Unicode value multiplied by its position number formed a perfect square on a Tuesday during a solar eclipse.
             </div>
             <AnimatePresence mode="wait">
               <motion.div
