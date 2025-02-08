@@ -65,7 +65,7 @@ export default function Home() {
             <Button size="lg" className="animate-bounce" onClick={() => window.location.href = '/launchpad'}>
               Launch Your Meme 🚀
             </Button>
-            <Button size="lg">
+            <Button size="lg" onClick={() => window.location.href = '/arena'}>
               Join The Madness 🎮
             </Button>
           </div>
