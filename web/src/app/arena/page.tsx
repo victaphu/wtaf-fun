@@ -17,7 +17,6 @@ export default function ArenaPage() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [eliminationHistory, setEliminationHistory] = useState<{rule: string, eliminated: string[]}[]>([]);
-  const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
   const [round, setRound] = useState<number>(1);
   
   useEffect(() => {
@@ -148,15 +147,11 @@ export default function ArenaPage() {
       }
     }, 5000);
 
-    // Update hover effects
-    node.select('.node-circle')
-      .attr('fill', d => hoveredNode?.id === d.id ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)');
-
     return () => {
       simulation.stop();
       clearInterval(eliminationInterval);
     };
-  }, [nodes, hoveredNode, round]);
+  }, [nodes, round]);
 
   return (
     <div className="flex min-h-screen bg-[#4f0000]">
