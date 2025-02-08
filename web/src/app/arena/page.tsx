@@ -16,9 +16,9 @@ interface Node {
 export default function ArenaPage() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
-  const [eliminationHistory, setEliminationHistory] = useState<{rule: string, eliminated: string[]}[]>([]);
+  const [eliminationHistory, setEliminationHistory] = useState<{ rule: string, eliminated: string[] }[]>([]);
   const [round, setRound] = useState<number>(1);
-  
+
   useEffect(() => {
     const initialNodes = Array.from({ length: 100 }, (_, i) => ({
       id: `node-${i}`,
@@ -35,24 +35,26 @@ export default function ArenaPage() {
 
     const width = 800;
     const height = 600;
-    
+
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
     const g = svg.append('g');
 
     const zoom = d3.zoom()
       .scaleExtent([0.1, 4])
-      .on('zoom', (event) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on('zoom', (event: any) => {
         g.attr('transform', event.transform);
       });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     svg.call(zoom as any);
-    
+
     const simulation = d3.forceSimulation(nodes)
       .force('charge', d3.forceManyBody().strength(-10))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius((d) => (d as Node).r + 5))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .force('collision', d3.forceCollide().radius((d: any) => (d as Node).r + 5))
       .force('x', d3.forceX(width / 2).strength(0.05))
       .force('y', d3.forceY(height / 2).strength(0.05))
       .alphaTarget(0.1)
@@ -60,52 +62,59 @@ export default function ArenaPage() {
 
     const node = g
       .selectAll<SVGGElement, Node>('.node')
-      .data(nodes, (d) => d.id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .data(nodes, (d: any) => d.id)
       .join(
-        enter => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (enter: any) => {
           const nodeGroup = enter.append('g')
             .attr('class', 'node')
             .call(drag(simulation))
-            .on('click', (event, d) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .on('click', (event: any, d: any) => {
               const eliminatedNodes = [d];
               handleElimination(eliminatedNodes);
             });
-          
+
           nodeGroup.append('circle')
             .attr('r', 22)
             .attr('fill', 'rgba(255, 255, 255, 0.1)')
             .attr('stroke', 'white')
             .attr('stroke-width', 1)
             .attr('class', 'node-circle');
-          
+
           nodeGroup.append('text')
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .style('font-size', '24px')
             .style('cursor', 'pointer')
-            .text(d => d.emoji);
-            
+            .text((d: any) => d.emoji);
+
           return nodeGroup;
         }
       );
 
     simulation.on('tick', () => {
-      node.attr('transform', d => `translate(${d.x},${d.y})`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      node.attr('transform', (d: any) => `translate(${d.x},${d.y})`);
     });
 
     function drag(simulation: d3.Simulation<Node, undefined>) {
       return d3.drag<SVGGElement, Node>()
-        .on('start', (event, d) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .on('start', (event: any, d: any) => {
           if (!event.active) simulation.alphaTarget(0.1).restart();
           d.fx = d.x;
           d.fy = d.y;
         })
-        .on('drag', (event, d) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .on('drag', (event: any, d: any) => {
           d.fx = event.x;
           d.fy = event.y;
           simulation.alpha(0.5).restart();
         })
-        .on('end', (event, d) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .on('end', (event: any, d: any) => {
           if (!event.active) simulation.alphaTarget(0);
           d.fx = null;
           d.fy = null;
@@ -114,7 +123,7 @@ export default function ArenaPage() {
 
     const handleElimination = (eliminatedNodes: Node[]) => {
       const rule = eliminationRules[Math.floor(Math.random() * eliminationRules.length)];
-      
+
       setEliminationHistory(prev => [
         {
           rule,
@@ -124,13 +133,16 @@ export default function ArenaPage() {
       ]);
 
       g.selectAll('.node')
-        .filter((d) => eliminatedNodes.some(n => n.id === d.id))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((d: any) => eliminatedNodes.some(n => n.id === d.id))
         .transition()
         .duration(500)
-        .attr('transform', d => `translate(${d.x},${d.y}) scale(2)`)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .attr('transform', (d: any) => `translate(${d.x},${d.y}) scale(2)`)
         .transition()
         .duration(300)
-        .attr('transform', d => `translate(${d.x},${d.y}) scale(0)`)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .attr('transform', (d: any) => `translate(${d.x},${d.y}) scale(0)`)
         .style('opacity', 0)
         .remove();
 
@@ -142,7 +154,7 @@ export default function ArenaPage() {
         const numToEliminate = Math.floor(nodes.length / 2);
         const shuffledNodes = [...nodes].sort(() => Math.random() - 0.5);
         const eliminatedNodes = shuffledNodes.slice(0, numToEliminate);
-        
+
         handleElimination(eliminatedNodes);
         setRound(prev => prev + 1);
       }
