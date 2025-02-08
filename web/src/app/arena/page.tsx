@@ -88,6 +88,7 @@ export default function ArenaPage() {
             .attr('dominant-baseline', 'middle')
             .style('font-size', '24px')
             .style('cursor', 'pointer')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .text((d: any) => d.emoji);
 
           return nodeGroup;
