@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function BlueCreateWalletButton({ handleSuccess, handleError }: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [provider, setProvider] = useState<any>(null);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export function BlueCreateWalletButton({ handleSuccess, handleError }: any) {
     } catch (error) {
       handleError(error);
     }
-  }, [handleSuccess, handleError]);
+  }, [handleSuccess, handleError, provider]);
 
   return (
     <Button onClick={createWallet}>

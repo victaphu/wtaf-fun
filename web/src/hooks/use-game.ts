@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import * as d3 from 'd3';
 import { eliminationRules, emojiList } from '../app/common/constants';
 
 interface Node {
@@ -90,52 +89,9 @@ export const useGame = () => {
     return () => clearInterval(eliminationInterval);
   }, [nodes, round]);
 
-  const setupSimulation = (
-    svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-    g: d3.Selection<SVGGElement, unknown, null, undefined>,
-    width: number,
-    height: number
-  ) => {
-    const simulation = d3.forceSimulation(nodes)
-      .force('charge', d3.forceManyBody().strength(-10))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .force('collision', d3.forceCollide().radius((d: any) => d.r + 5))
-      .force('x', d3.forceX(width / 2).strength(0.05))
-      .force('y', d3.forceY(height / 2).strength(0.05))
-      .alphaTarget(0.1)
-      .velocityDecay(0.3);
-
-    return simulation;
-  };
-
-  const createDragBehavior = (simulation: d3.Simulation<Node & TokenDetails, undefined>) => {
-    return d3.drag<SVGGElement, Node & TokenDetails>()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .on('start', (event, d:any) => {
-        if (!event.active) simulation.alphaTarget(0.1).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .on('drag', (event, d:any) => {
-        d.fx = event.x;
-        d.fy = event.y;
-        simulation.alpha(0.5).restart();
-      })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .on('end', (event, d:any) => {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-      });
-  };
-
   return {
     nodes,
     eliminationHistory,
     round,
-    setupSimulation,
-    createDragBehavior
   };
 };
