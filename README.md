@@ -13,7 +13,7 @@ WTAF.fun is a revolutionary meme token battle royale platform built on BASE chai
 - Dynamic token burning system
 
 ### 🚀 Token Launch System
-- Easy meme token creation via smart contract (0xA418a6a536d8f806b52E7ec2821Bbe0DfE07C7d0)
+- Easy meme token creation via smart contract (0x2564aB19a74276FCAF14B0F149037f2A9d3EE373)
 - Custom emoji and token metadata support
 - Instant BASE chain deployment
 - Automated liquidity pool creation
@@ -74,11 +74,44 @@ WTAF.fun is a revolutionary meme token battle royale platform built on BASE chai
 - npm run dev
 
 Ask it about BattleRoyale, and run some commands, the AgentKit will execute stuff. If you run in autonomous mode it will try to run a game
+Examples:
+```
+Available modes:
+1. chat    - Interactive chat mode
+2. auto    - Autonomous action mode
+
+Choose a mode (enter number or name): 1
+1
+Starting chat mode... Type 'exit' to end.
+
+Prompt: tell me about the battle royale actions you have access to
+tell me about the battle royale actions you have access to
+I can assist with the following Battle Royale actions:
+
+1. **Start a New Round:** Initiate a new round in the Battle Royale game.
+   
+2. **Eliminate Tokens:** Remove specified tokens from the game.
+   
+3. **Advance Game State:** Move the game state to the next phase.
+
+If you have any specific requests related to these actions, feel free to ask!
+-------------------
+
+Prompt: please help me to advance the game state for the battle royale contract
+please help me to advance the game state for the battle royale contract
+
+-------------------
+Successfully advanced game state. Transaction hash: 0xe10b0383e34d8240214920a53ade9e0995e59eb5dbf254627be2bbd1a08e0e5d
+-------------------
+The game state has been successfully advanced in the Battle Royale contract. You can reference the transaction hash: `0xe10b0383e34d8240214920a53ade9e0995e59eb5dbf254627be2bbd1a08e0e5d` for tracking. If you need any further assistance, let me know!
+```
+https://sepolia.basescan.org/tx/0xe10b0383e34d8240214920a53ade9e0995e59eb5dbf254627be2bbd1a08e0e5d
+
 
 ## Links
 - Website: https://wtaf.fun
-- Memecoin Factory Smart Contract: 0xA418a6a536d8f806b52E7ec2821Bbe0DfE07C7d0 / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0xA418a6a536d8f806b52E7ec2821Bbe0DfE07C7d0)
-- Battle Royale Game Smart Contract: 0x71a22A353092479c0558fa9Fe6D89ebB9835ED19 / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0x71a22A353092479c0558fa9Fe6D89ebB9835ED19)
+- Memecoin Factory Smart Contract: 0x2564aB19a74276FCAF14B0F149037f2A9d3EE373 / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0x2564aB19a74276FCAF14B0F149037f2A9d3EE373)
+- Battle Royale Game Smart Contract: 0x8007918A1514dFfbbBd2B1D9c83B883d95763068 / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0x8007918A1514dFfbbBd2B1D9c83B883d95763068)
 - Github: https://github.com/victaphu/wtaf.fun
 
 ## Agentic Source Code

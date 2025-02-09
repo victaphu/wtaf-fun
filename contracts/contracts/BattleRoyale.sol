@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract BattleRoyale is AccessControl, ReentrancyGuard {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-    
+
     enum GameState {
         PREPARING,
         STAKING,
@@ -37,7 +37,7 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
     Round public currentRound;
     uint256 public constant ROUND_DURATION = 1 minutes;
     uint256 public constant MINIMUM_STAKE = 0.0001 ether;
-    
+
     // Token tracking
     mapping(address => Token) public tokens;
     address[] public activeTokens;
@@ -49,14 +49,30 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
 
     // Events
     event TokenEliminated(address indexed tokenAddress);
+    event TokenRegistered(address indexed tokenAddress);
     event GameStateChanged(GameState newState);
-    event StakePlaced(address indexed user, address indexed token, uint256 amount);
+    event StakePlaced(
+        address indexed user,
+        address indexed token,
+        uint256 amount
+    );
     event VoteCast(address indexed user, address indexed token, uint256 amount);
     event RoundStarted(uint256 roundNumber);
+
+    address public creator;
+
+    address public memeCoinFactory;
 
     constructor(address admin) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(OPERATOR_ROLE, admin);
+        creator = msg.sender;
+    }
+
+    function setMemeCoinFactory(address _memeCoinFactory) external {
+        require(msg.sender == creator, "Only creator can set factory");
+        require(memeCoinFactory == address(0), "Factory already set");
+        memeCoinFactory = _memeCoinFactory;
     }
 
     modifier inState(GameState state) {
@@ -64,19 +80,36 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
         _;
     }
 
-    function startNewRound() external onlyRole(OPERATOR_ROLE) inState(GameState.FINISHED) {
+    function startNewRound()
+        external
+        onlyRole(OPERATOR_ROLE)
+        inState(GameState.FINISHED)
+    {
         currentRound.roundNumber++;
         currentRound.startTime = block.timestamp;
         currentRound.endTime = block.timestamp + ROUND_DURATION;
         currentRound.totalStaked = 0;
-        
+
         currentState = GameState.STAKING;
-        
+
         emit RoundStarted(currentRound.roundNumber);
         emit GameStateChanged(GameState.STAKING);
     }
 
-    function stake(address tokenAddress) external payable nonReentrant inState(GameState.STAKING) {
+    function registerToken(address tokenAddress) external {
+        require(msg.sender == memeCoinFactory, "Only factory can register tokens");
+        require(!tokens[tokenAddress].isAlive, "Token already registered");
+
+        tokens[tokenAddress] = Token(tokenAddress, true, 0, 0, 0);
+        activeTokens.push(tokenAddress);
+        tokenIndex[tokenAddress] = activeTokens.length - 1;
+
+        emit TokenRegistered(tokenAddress);
+    }
+
+    function stake(
+        address tokenAddress
+    ) external payable nonReentrant inState(GameState.STAKING) {
         require(msg.value >= MINIMUM_STAKE, "Insufficient stake amount");
         require(tokens[tokenAddress].isAlive, "Token not active");
 
@@ -87,9 +120,15 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
         emit StakePlaced(msg.sender, tokenAddress, msg.value);
     }
 
-    function vote(address tokenAddress, uint256 amount) external nonReentrant inState(GameState.VOTING) {
+    function vote(
+        address tokenAddress,
+        uint256 amount
+    ) external nonReentrant inState(GameState.VOTING) {
         require(tokens[tokenAddress].isAlive, "Token not active");
-        require(userStakes[msg.sender][tokenAddress] >= amount, "Insufficient stake");
+        require(
+            userStakes[msg.sender][tokenAddress] >= amount,
+            "Insufficient stake"
+        );
 
         userVotes[msg.sender][tokenAddress] += amount;
         tokens[tokenAddress].votesReceived += amount;
@@ -97,31 +136,36 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
         emit VoteCast(msg.sender, tokenAddress, amount);
     }
 
-    function eliminateTokens(address[] calldata tokensToEliminate) external onlyRole(OPERATOR_ROLE) inState(GameState.EVALUATING) {
+    function eliminateTokens(
+        address[] calldata tokensToEliminate
+    ) external onlyRole(OPERATOR_ROLE) inState(GameState.EVALUATING) {
         for (uint i = 0; i < tokensToEliminate.length; i++) {
             address tokenAddr = tokensToEliminate[i];
             require(tokens[tokenAddr].isAlive, "Token already eliminated");
-            
+
             tokens[tokenAddr].isAlive = false;
-            
+
             uint256 index = tokenIndex[tokenAddr];
             uint256 lastIndex = activeTokens.length - 1;
             address lastToken = activeTokens[lastIndex];
-            
+
             if (index != lastIndex) {
                 activeTokens[index] = lastToken;
                 tokenIndex[lastToken] = index;
             }
-            
+
             activeTokens.pop();
             delete tokenIndex[tokenAddr];
-            
+
             emit TokenEliminated(tokenAddr);
         }
     }
 
     function advanceState() external onlyRole(OPERATOR_ROLE) {
-        require(uint8(currentState) < uint8(GameState.FINISHED), "Game already finished");
+        require(
+            uint8(currentState) < uint8(GameState.FINISHED),
+            "Game already finished"
+        );
         currentState = GameState(uint8(currentState) + 1);
         emit GameStateChanged(currentState);
     }

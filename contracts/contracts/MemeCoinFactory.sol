@@ -5,14 +5,18 @@ pragma solidity ^0.8.26;
 import "./BattleRoyaleToken.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
+interface IBattleRoyale {
+  function registerToken(address tokenAddress) external;
+}
+
 contract MemeCoinFactory is AccessControl {
     bytes32 public constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
-    address public immutable gameContract;
+    IBattleRoyale public immutable gameContract;
 
     event TokenCreated(address indexed tokenAddress, string name, string symbol, string emoji);
 
     constructor(address _gameContract, address admin) {
-        gameContract = _gameContract;
+        gameContract = IBattleRoyale(_gameContract);
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(CREATOR_ROLE, admin);
     }
@@ -26,11 +30,13 @@ contract MemeCoinFactory is AccessControl {
         BattleRoyaleToken newToken = new BattleRoyaleToken(
             name,
             symbol,
-            gameContract,
+            address(gameContract),
             msg.sender,
             emoji,
             description
         );
+
+        gameContract.registerToken(address(newToken));
 
         emit TokenCreated(address(newToken), name, symbol, emoji);
         return address(newToken);

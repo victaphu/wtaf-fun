@@ -5,6 +5,7 @@ const BattleRoyaleFactoryModule = buildModule("BattleRoyaleFactoryModule", (m) =
   const battleRoyale = m.contract("BattleRoyale", [admin]);
   const memeCoinFactory = m.contract("MemeCoinFactory", [battleRoyale, admin]);
 
+  m.call(battleRoyale, "setMemeCoinFactory", [memeCoinFactory]);
   console.log("BattleRoyaleFactoryModule", {
     battleRoyale: battleRoyale,
     memeCoinFactory: memeCoinFactory,

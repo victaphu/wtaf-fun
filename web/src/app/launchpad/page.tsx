@@ -52,58 +52,9 @@ export default function LaunchpadPage() {
         }
       ];
       
-      const battleRoyaleAbi = [
-        {
-          "inputs": [
-            {
-              "name": "tokenAddress",
-              "type": "address"
-            }
-          ],
-          "name": "stake",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "name": "user",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "name": "token",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "name": "amount",
-              "type": "uint256"
-            }
-          ],
-          "name": "StakePlaced",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "name": "newState",
-              "type": "uint8"
-            }
-          ],
-          "name": "GameStateChanged",
-          "type": "event"
-        }
-      ];
-      
       const results = await writeContractAsync({
         abi: factoryAbi,
-        address: '0xA418a6a536d8f806b52E7ec2821Bbe0DfE07C7d0',
+        address: '0x2564aB19a74276FCAF14B0F149037f2A9d3EE373',
         functionName: 'createToken',
         args: [tokenDetails.tokenName, tokenDetails.tokenSymbol, tokenDetails.emoji, tokenDetails.description],
       });
@@ -120,16 +71,8 @@ export default function LaunchpadPage() {
       console.log(logs);
 
       const createdTokenDetails = logs[0].args;
-      
-      await writeContractAsync({
-        abi: battleRoyaleAbi,
-        address: "0x71a22A353092479c0558fa9Fe6D89ebB9835ED19",
-        functionName: 'stake',
-        args: [createdTokenDetails.tokenAddress],
-        value: parseEther('0.0001')      
-      });
 
-      setTokenAddress(logs[0].args.address)
+      setTokenAddress(createdTokenDetails.tokenAddress)
       setLaunchStatus('success')
     } catch (error) {
       console.error("Error launching token:", error);

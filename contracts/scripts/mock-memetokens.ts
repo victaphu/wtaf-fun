@@ -31,7 +31,7 @@ async function main() {
   const wallet = new ethers.Wallet(process.env.WALLET_KEY, ethers.provider);
   const factory = await ethers.getContractAt(
     "MemeCoinFactory",
-    "0xA418a6a536d8f806b52E7ec2821Bbe0DfE07C7d0",
+    "0x2564aB19a74276FCAF14B0F149037f2A9d3EE373",
     wallet
   );
 
@@ -46,8 +46,20 @@ async function main() {
         token.emoji,
         token.description
       );
-      await tx.wait();
+      const receipt = await tx.wait();
       console.log(`Token ${i + 1} created: ${token.tokenName} (${token.tokenSymbol})`);
+
+      if (receipt) {
+
+        const event = receipt.logs.find(
+          log => factory.interface.parseLog(log)?.name === 'TokenCreated'
+        );
+        if (event) {
+          const parsedLog = factory.interface.parseLog(event)!;
+          console.log(`Token address: ${parsedLog.args.tokenAddress}`);
+        }
+      }
+
     } catch (error) {
       console.error(`Failed to create token ${i + 1}:`, error);
     }
