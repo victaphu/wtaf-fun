@@ -51,6 +51,7 @@ export const useCreateToken = () => {
       const receipt = await getTransactionReceipt(config.getClient(), { hash: results });
       console.log('receipt', receipt);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const logs: any = await getContractEvents(config.getClient(), {
         abi: factoryAbi,
         blockHash: receipt.blockHash

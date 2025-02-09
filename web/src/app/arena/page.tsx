@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import * as d3 from 'd3';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import { BlueCreateWalletButton } from '@/shared/CreateWalletButton';
 import EliminationHistory from '@/shared/EliminationHistory';
 import { useGame } from '@/hooks/use-game';
@@ -39,6 +38,7 @@ export default function ArenaPage() {
     setAddress(address);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleError = (error: any) => {
     setAddress("");
     console.log("Error connecting wallet", error);
@@ -85,6 +85,7 @@ export default function ArenaPage() {
           const nodeGroup = enter.append('g')
             .attr('class', 'node')
             .call(drag(simulation))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .on('click', (event: any, d: Node) => {
               setSelectedNode(d);
             });

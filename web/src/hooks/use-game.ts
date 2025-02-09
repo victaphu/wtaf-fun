@@ -25,7 +25,7 @@ interface EliminationEvent {
   eliminated: TokenDetails[];
 }
 
-const simulationMode = false;
+const simulationMode = true;
 
 const generateRandomToken = (): TokenDetails => {
   const adjectives = ['Super', 'Mega', 'Ultra', 'Hyper', 'Epic', 'Magic', 'Cosmic', 'Lucky'];
@@ -67,6 +67,7 @@ async function fetchAllActiveTokens(): Promise<TokenDetails[]> {
       address: battleRoyaleAddress as Hex,
       abi: getActiveTokensAbi,
       functionName: 'getActiveTokens',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }) as any[];
 
     // console.log("Active tokens:", activeTokens);
@@ -130,6 +131,8 @@ async function fetchAllActiveTokens(): Promise<TokenDetails[]> {
     // });
 
     // Create array of token objects from logs
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tokenList: (TokenDetails & { tokenAddress: string })[] = logs.map((log: any) => ({
       tokenAddress: getAddress(log.args.tokenAddress),
       tokenName: log.args.name,
@@ -195,7 +198,7 @@ const useGameSim = () => {
         setNodes(prev => prev.filter(n => !eliminatedNodes.some(en => en.id === n.id)));
         setRound(prev => prev + 1);
       }
-    }, 15000);
+    }, 5000);
 
     return () => clearInterval(eliminationInterval);
   }, [nodes, round]);
@@ -204,7 +207,7 @@ const useGameSim = () => {
     nodes,
     eliminationHistory,
     round,
-    refresh: () => {}
+    refresh: () => { }
   };
 };
 
@@ -236,7 +239,7 @@ const battleRoyaleABI = [
     ],
     "stateMutability": "view",
     "type": "function"
-  },{
+  }, {
     "inputs": [
       {
         "internalType": "uint256",
@@ -259,7 +262,7 @@ const battleRoyaleABI = [
 
 const useGameReal = () => {
   const [nodes, setNodes] = useState<(Node & TokenDetails)[]>([]);
-  const [eliminationHistory, setEliminationHistory] = useState<EliminationEvent[]>([]);
+  const [eliminationHistory,] = useState<EliminationEvent[]>([]);
   const [round, setRound] = useState<number>(1);
   const fetchData = async () => {
     try {
@@ -268,15 +271,16 @@ const useGameReal = () => {
         chain: baseSepolia,
         transport: http()
       });
-      
+
       const gameState = await publicClient.readContract({
         address: battleRoyaleAddress,
         abi: battleRoyaleABI,
         functionName: 'currentRound'
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any;
       // setRound(Number(gameState)); 
       setRound(Number(gameState[0]));
-      console.log(gameState); 
+      console.log(gameState);
       const initialNodes = activeTokens.map((token, i) => ({
         id: `node-${i}`,
         x: Math.random() * 800,
