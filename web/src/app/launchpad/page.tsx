@@ -1,85 +1,28 @@
 "use client"
-import { useState } from 'react'
 import LaunchMemeCoin, { TokenDetails } from '@/shared/LaunchMemeCoin'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { useWriteContract } from 'wagmi'
-import { getContractEvents, getTransactionReceipt } from 'viem/actions'
-import { config } from '../wagmi'
-import { etherUnits, parseEther } from 'viem'
+import { BlueCreateWalletButton } from '@/shared/CreateWalletButton'
+import { PurpleConnectWalletButton } from '@/shared/LoginWalletButton'
+import { useAccount } from 'wagmi'
+import { useCreateToken } from '@/hooks/use-create-token'
 
 export default function LaunchpadPage() {
-  // const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [launchStatus, setLaunchStatus] = useState<'idle' | 'launching' | 'success'>("idle")
-  const [tokenAddress, setTokenAddress] = useState<string | null>(null)
+  const { address } = useAccount()
+  const { createToken, launchStatus, tokenAddress } = useCreateToken();
 
-  const { writeContractAsync } = useWriteContract();
+  const handleWalletSuccess = () => {
+    window.location.reload()
+  }
 
-  // const handleWalletSuccess = (address: string) => {
-  //   setWalletAddress(address)
-  // }
-
-  // const handleWalletError = (error: Error) => {
-  //   console.error('Wallet error:', error)
-  // }
+  const handleWalletError = (error: Error) => {
+    console.error('Wallet error:', error)
+  }
 
   const handleLaunch = async (tokenDetails: TokenDetails) => {
-    try {
-      setLaunchStatus('launching')
-      const factoryAbi = [
-        {
-          "inputs": [
-            { "name": "name", "type": "string" },
-            { "name": "symbol", "type": "string" },
-            { "name": "emoji", "type": "string" },
-            { "name": "description", "type": "string" }
-          ],
-          "name": "createToken",
-          "outputs": [{ "name": "", "type": "address" }],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            { "indexed": true, "name": "tokenAddress", "type": "address" },
-            { "indexed": false, "name": "name", "type": "string" },
-            { "indexed": false, "name": "symbol", "type": "string" },
-            { "indexed": false, "name": "emoji", "type": "string" }
-          ],
-          "name": "TokenCreated",
-          "type": "event"
-        }
-      ];
-      
-      const results = await writeContractAsync({
-        abi: factoryAbi,
-        address: '0x90EcC427c18F2d1aAB478822238B9a68Ba7b8CDa',
-        functionName: 'createToken',
-        args: [tokenDetails.tokenName, tokenDetails.tokenSymbol, tokenDetails.emoji, tokenDetails.description],
-      });
-
-      console.log('result', results);
-      const receipt = await getTransactionReceipt(config.getClient(), { hash: results });
-      console.log('receipt', receipt);
-
-      const logs: any = await getContractEvents(config.getClient(), {
-        abi: factoryAbi,
-        blockHash: receipt.blockHash
-      });
-
-      console.log(logs);
-
-      const createdTokenDetails = logs[0].args;
-
-      setTokenAddress(createdTokenDetails.tokenAddress)
-      setLaunchStatus('success')
-    } catch (error) {
-      console.error("Error launching token:", error);
-      setLaunchStatus('idle')
-      throw error;
-    }
+    await createToken(tokenDetails);
   }
+
   return (
     <div className="min-h-screen bg-[#4f0000] text-white">
       <img src="/rocketship.gif" alt="Rocket Ship" className="w-full max-w-5xl mx-auto" />
@@ -106,7 +49,12 @@ export default function LaunchpadPage() {
       <section className="container mx-auto px-4 py-16">
         <Card className="bg-white/5 text-white p-8">
           <CardContent className="flex flex-col items-center justify-center space-y-6">
-            {launchStatus === 'launching' ? (
+            {!address ? (
+              <div className="flex gap-4">
+                <BlueCreateWalletButton handleSuccess={handleWalletSuccess} handleError={handleWalletError} />
+                <PurpleConnectWalletButton handleSuccess={handleWalletSuccess} handleError={handleWalletError} />
+              </div>
+            ) : launchStatus === 'launching' ? (
               <div className="text-center space-y-4">
                 <h2 className="text-2xl font-bold">Preparing to Launch the Memecoin</h2>
                 <p className="opacity-75">Please wait while your memecoin is being created...</p>

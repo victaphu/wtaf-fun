@@ -25,9 +25,11 @@ export function BlueCreateWalletButton({ handleSuccess, handleError }: any) {
         method: 'eth_requestAccounts',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any;
-      handleSuccess(address);
+      console.log('success', address);
+      if (handleSuccess) handleSuccess(address);
     } catch (error) {
-      handleError(error);
+      console.log('failed', error);
+      if (handleError) handleError(error);
     }
   }, [handleSuccess, handleError, provider]);
 

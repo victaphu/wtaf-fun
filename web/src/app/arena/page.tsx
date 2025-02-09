@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import * as d3 from 'd3';
 import Image from 'next/image';
@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button';
 import { BlueCreateWalletButton } from '@/shared/CreateWalletButton';
 import EliminationHistory from '@/shared/EliminationHistory';
 import { useGame } from '@/hooks/use-game';
+import { PurpleConnectWalletButton } from '@/shared/LoginWalletButton';
+import LaunchMemeCoin, { TokenDetails } from '@/shared/LaunchMemeCoin';
+import { useCreateToken } from '@/hooks/use-create-token';
+import Link from 'next/link';
 
 interface Node {
   id: string;
@@ -14,11 +18,31 @@ interface Node {
   x: number;
   y: number;
   r: number;
+  tokenName?: string;
+  tokenSymbol?: string;
 }
 
 export default function ArenaPage() {
   const svgRef = useRef<SVGSVGElement>(null);
-  const {eliminationHistory, nodes, round} = useGame();
+  const [address, setAddress] = useState("");
+  const { eliminationHistory, nodes, round, refresh } = useGame();
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+
+  const { createToken } = useCreateToken();
+
+  const handleLaunch = async (tokenDetails: TokenDetails) => {
+    await createToken(tokenDetails);
+    refresh();
+  }
+
+  const handleSuccess = (address: string) => {
+    setAddress(address);
+  };
+
+  const handleError = (error: any) => {
+    setAddress("");
+    console.log("Error connecting wallet", error);
+  };
 
   useEffect(() => {
     if (!svgRef.current || nodes.length === 0) return;
@@ -61,6 +85,9 @@ export default function ArenaPage() {
           const nodeGroup = enter.append('g')
             .attr('class', 'node')
             .call(drag(simulation))
+            .on('click', (event: any, d: Node) => {
+              setSelectedNode(d);
+            });
 
           nodeGroup.append('circle')
             .attr('r', 22)
@@ -97,7 +124,7 @@ export default function ArenaPage() {
             .style('background', 'rgba(255,255,255,1)')
             .style('filter', 'drop-shadow(0 0 8px rgba(255,255,255,0.6))')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .text((d: any) => d.emoji);            return nodeGroup;
+            .text((d: any) => d.emoji); return nodeGroup;
         }
       );
 
@@ -151,7 +178,7 @@ export default function ArenaPage() {
                       <span className="text-sm opacity-75">{token.tokenSymbol}</span>
                     </div>
                   </div>
-                </Card>              
+                </Card>
               ))}
             </div>
           ))}
@@ -161,7 +188,9 @@ export default function ArenaPage() {
       <div className="ml-[25%] flex-1 flex flex-col items-center">
         <nav className="w-full bg-black/30 pr-1 py-1">
           <div className="container mx-auto flex items-center justify-between">
-            <Image src="/logo-wtaf.png" alt="WTAF" width={200} height={100} />
+            <Link href="/">
+              <Image src="/logo-wtaf.png" alt="WTAF" width={200} height={100} />
+            </Link>
             <div className="flex items-center gap-8 text-white">
               <Card className="p-4 w-40">
                 <div className="flex flex-col items-center gap-2">
@@ -191,33 +220,56 @@ export default function ArenaPage() {
                 </div>
               </Card>
               <div className="flex flex-col gap-2">
-                <BlueCreateWalletButton />
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  Connect Wallet
-                </Button>
-                {/* <LaunchMemeCoin /> */}
+                {address === "" ? (
+                  <>
+                    <BlueCreateWalletButton handleSuccess={handleSuccess} handleError={handleError} />
+                    <PurpleConnectWalletButton handleSuccess={handleSuccess} handleError={handleError} />
+                  </>
+                ) : (
+                  <>
+                    <Card className="p-2 bg-white/10">
+                      <span className="text-sm truncate max-w-[150px] inline-block">{address}</span>
+                    </Card>
+                    <LaunchMemeCoin onLaunch={handleLaunch} />
+                  </>
+                )}
               </div>
             </div>
           </div>
         </nav>
         <EliminationHistory eliminationHistory={eliminationHistory} currentRound={round} />
-        <div
-          className="relative mt-8"
-          style={{ width: 800, height: 600 }}
-        >
-          <Image
-            src="/battleground.png"
-            alt="Battleground"
-            fill
-            className="rounded-lg"
-          />
-          <svg
-            ref={svgRef}
-            width="800"
-            height="600"
-            className="absolute top-0 left-0 rounded-lg"
-            style={{ backgroundColor: 'transparent' }}
-          />
+        <div className="flex gap-8 mt-8">
+          <div className="relative" style={{ width: 800, height: 600 }}>
+            <Image
+              src="/battleground.png"
+              alt="Battleground"
+              fill
+              className="rounded-lg"
+            />
+            <svg
+              ref={svgRef}
+              width="800"
+              height="600"
+              className="absolute top-0 left-0 rounded-lg"
+              style={{ backgroundColor: 'transparent' }}
+            />
+          </div>
+          <div className="w-80 h-[600px] overflow-y-auto">
+            <div className="space-y-4">
+              {nodes.map((node) => (
+                <Card key={node.id} className={`p-4 ${selectedNode?.id === node.id ? 'bg-white/20' : 'bg-white/10'} text-white cursor-pointer transition-colors`} onClick={() => setSelectedNode(node)}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{node.emoji}</span>
+                    <div>
+                      <h3 className="font-bold">{node.tokenName}</h3>
+                      <p className="text-sm text-gray-300">{node.tokenSymbol}</p>
+                      <p className="text-sm text-gray-300">{node.description}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

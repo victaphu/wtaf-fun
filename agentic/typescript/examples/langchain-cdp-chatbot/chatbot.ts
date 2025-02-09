@@ -16,7 +16,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
-import { createPublicClient, Hex, http } from "viem";
+import { createPublicClient, getAddress, Hex, http } from "viem";
 import { baseSepolia } from "viem/chains";
 
 dotenv.config();
@@ -239,7 +239,7 @@ async function fetchAllActiveTokens() {
 
     // Create array of token objects from logs
     const tokenList = logs.map((log: any) => ({
-      tokenAddress: log.args.tokenAddress,
+      tokenAddress: getAddress(log.args.tokenAddress),
       name: log.args.name,
       symbol: log.args.symbol,
       emoji: log.args.emoji,

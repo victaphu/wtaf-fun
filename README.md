@@ -4,6 +4,11 @@
 ## Overview
 WTAF.fun is a revolutionary meme token battle royale platform built on BASE chain that combines AI-driven chaos, community engagement, and DeFi mechanics into an addictive gaming experience.
 
+## Prizes I'm applying for
+- Autonome: https://autonome.alt.technology/wtaf-wjxyax
+- Coinbase Developer Platform 
+- Base
+
 ## Core Features
 
 ### 🎮 Battle Royale Mechanics
