@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useWriteContract } from 'wagmi'
 import { getContractEvents, getTransactionReceipt } from 'viem/actions'
 import { config } from '../wagmi'
+import { etherUnits, parseEther } from 'viem'
 
 export default function LaunchpadPage() {
   // const [walletAddress, setWalletAddress] = useState<string | null>(null)
@@ -50,7 +51,56 @@ export default function LaunchpadPage() {
           "type": "event"
         }
       ];
-
+      
+      const battleRoyaleAbi = [
+        {
+          "inputs": [
+            {
+              "name": "tokenAddress",
+              "type": "address"
+            }
+          ],
+          "name": "stake",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "StakePlaced",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "newState",
+              "type": "uint8"
+            }
+          ],
+          "name": "GameStateChanged",
+          "type": "event"
+        }
+      ];
+      
       const results = await writeContractAsync({
         abi: factoryAbi,
         address: '0xA418a6a536d8f806b52E7ec2821Bbe0DfE07C7d0',
@@ -62,14 +112,24 @@ export default function LaunchpadPage() {
       const receipt = await getTransactionReceipt(config.getClient(), { hash: results });
       console.log('receipt', receipt);
 
-      const logs = await getContractEvents(config.getClient(), {
+      const logs: any = await getContractEvents(config.getClient(), {
         abi: factoryAbi,
         blockHash: receipt.blockHash
       });
 
       console.log(logs);
+
+      const createdTokenDetails = logs[0].args;
       
-      setTokenAddress(results)
+      await writeContractAsync({
+        abi: battleRoyaleAbi,
+        address: "0x71a22A353092479c0558fa9Fe6D89ebB9835ED19",
+        functionName: 'stake',
+        args: [createdTokenDetails.tokenAddress],
+        value: parseEther('0.0001')      
+      });
+
+      setTokenAddress(logs[0].args.address)
       setLaunchStatus('success')
     } catch (error) {
       console.error("Error launching token:", error);
