@@ -7,7 +7,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import EmojiPicker from 'emoji-picker-react'
-
+import { useToast } from '@/hooks/use-toast'
+import { Rocket, Check } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export interface TokenDetails {
   tokenName: string
@@ -18,7 +20,9 @@ export interface TokenDetails {
   emoji: string
 }
 
-export default function LaunchMemeCoin() {
+export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails: TokenDetails) => void }) {
+  const router = useRouter()
+  const { toast } = useToast()
   const [formData, setFormData] = useState<TokenDetails>({
     tokenName: '',
     tokenSymbol: '',
@@ -29,6 +33,9 @@ export default function LaunchMemeCoin() {
   })
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [isLaunching, setIsLaunching] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -49,18 +56,42 @@ export default function LaunchMemeCoin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement launch logic
-    console.log('Launching memecoin with data:', formData)
+    // setIsLaunching(true)
+    // toast({
+    //   title: "Minting in Progress",
+    //   description: `Token ${formData.tokenName} (${formData.tokenSymbol}) with supply of ${formData.totalSupply} is being minted on the memechain...`,
+    // })
+    
+    // if (onLaunch) {
+    //   onLaunch(formData)
+    // }
+    
+    // setTimeout(() => {
+    //   toast({
+    //     title: "Success!",
+    //     description: "Your memecoin has been minted!",
+    //   })
+    //   setIsSuccess(true)
+    //   setTimeout(() => {
+    //     setDialogOpen(false)
+    //     router.push('/arena')
+    //   }, 1000)
+    // }, 5000)
+    
+    // console.log('Launching memecoin with data:', formData)
+
+    onLaunch && onLaunch(formData);
+    setDialogOpen(false);
   }
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Launch Your Memecoin</Button>
+        <Button onClick={() => setDialogOpen(true)}>Launch Memecoin </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Launch Your Memecoin</DialogTitle>
+          <DialogTitle>Visit the Arena</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
@@ -72,6 +103,7 @@ export default function LaunchMemeCoin() {
               onChange={handleInputChange}
               placeholder="e.g., Doge Coin"
               required
+              disabled={isLaunching}
             />
           </div>
 
@@ -84,6 +116,7 @@ export default function LaunchMemeCoin() {
               onChange={handleInputChange}
               placeholder="e.g., DOGE"
               required
+              disabled={isLaunching}
             />
           </div>
 
@@ -97,6 +130,7 @@ export default function LaunchMemeCoin() {
               onChange={handleInputChange}
               placeholder="e.g., 1000000000"
               required
+              disabled={isLaunching}
             />
           </div>
 
@@ -109,6 +143,7 @@ export default function LaunchMemeCoin() {
               onChange={handleInputChange}
               placeholder="Describe your memecoin..."
               required
+              disabled={isLaunching}
             />
           </div>
 
@@ -119,6 +154,7 @@ export default function LaunchMemeCoin() {
                 type="button"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className="w-full text-left"
+                disabled={isLaunching}
               >
                 {formData.emoji || 'Select an emoji...'}
               </Button>
@@ -139,11 +175,23 @@ export default function LaunchMemeCoin() {
               value={formData.websiteUrl}
               onChange={handleInputChange}
               placeholder="https://..."
+              disabled={isLaunching}
             />
           </div>
 
-          <Button type="submit" className="w-full">
-            Launch Memecoin
+          <Button type="submit" className="w-full" disabled={isLaunching}>
+            {isLaunching ? (
+              <>
+                {isSuccess ? (
+                  <Check className="w-4 h-4 mr-2 text-green-500" />
+                ) : (
+                  <Rocket className="w-4 h-4 mr-2 animate-spin" />
+                )}
+                {isSuccess ? 'Launched!' : 'Launching Memecoin...'}
+              </>
+            ) : (
+              'Launch Memecoin'
+            )}
           </Button>
         </form>
       </DialogContent>

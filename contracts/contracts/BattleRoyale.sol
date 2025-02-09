@@ -54,9 +54,9 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
     event VoteCast(address indexed user, address indexed token, uint256 amount);
     event RoundStarted(uint256 roundNumber);
 
-    constructor() {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(OPERATOR_ROLE, msg.sender);
+    constructor(address admin) {
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _grantRole(OPERATOR_ROLE, admin);
     }
 
     modifier inState(GameState state) {
