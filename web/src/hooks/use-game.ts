@@ -198,7 +198,7 @@ const useGameSim = () => {
         setNodes(prev => prev.filter(n => !eliminatedNodes.some(en => en.id === n.id)));
         setRound(prev => prev + 1);
       }
-    }, 5000);
+    }, 15000);
 
     return () => clearInterval(eliminationInterval);
   }, [nodes, round]);
