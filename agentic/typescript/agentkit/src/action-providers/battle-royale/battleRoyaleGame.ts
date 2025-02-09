@@ -6,7 +6,7 @@ import { abi } from "./constants";
 import { encodeFunctionData, Hex } from "viem";
 import { EvmWalletProvider } from "../../wallet-providers";
 
-const battleRoyaleAddress = "0x8007918A1514dFfbbBd2B1D9c83B883d95763068";
+const battleRoyaleAddress = "0xFcD18dbA40c43b6e01f09D3D1858B7C4706cf6Ca";
 
 /**
  * BattleRoyaleGame class represents a game where players create meme tokens and hope the AI Overlord doesn't eliminate them.

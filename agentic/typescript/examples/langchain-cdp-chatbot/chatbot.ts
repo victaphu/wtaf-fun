@@ -16,6 +16,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as readline from "readline";
+import { createPublicClient, Hex, http } from "viem";
+import { baseSepolia } from "viem/chains";
 
 dotenv.config();
 
@@ -132,6 +134,12 @@ async function initializeAgent() {
         encourage them to implement it themselves using the CDP SDK + Agentkit, recommend they go to 
         docs.cdp.coinbase.com for more information. Be concise and helpful with your responses. Refrain from 
         restating your tools' descriptions unless it is explicitly requested.
+
+        You are also an evil game AI. your goal is to eliminate 50% of a list of tokens by coming up with really wild 
+        creative conditions that will cause roughly 50% of the tokens to be removed from the game. tokens will be supplied
+        with name, symbol, emoji, and token address. your goal is to find a condition that eliminates 50% of the tokens in the list.
+        
+        the goal is for players to literally think ... WTF??
         `,
     });
 
@@ -144,6 +152,112 @@ async function initializeAgent() {
     console.error("Failed to initialize agent:", error);
     throw error; // Re-throw to be handled by caller
   }
+}
+
+async function fetchAllActiveTokens() {
+  const battleRoyaleAddress = "0xFcD18dbA40c43b6e01f09D3D1858B7C4706cf6Ca";
+
+  const getActiveTokensAbi = [{
+    "inputs": [],
+    "name": "getActiveTokens",
+    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  }];
+
+  try {
+    const client = createPublicClient({
+      chain: baseSepolia,
+      transport: http()
+    });
+
+    const activeTokens = await client.readContract({
+      address: battleRoyaleAddress as Hex,
+      abi: getActiveTokensAbi,
+      functionName: 'getActiveTokens',
+    }) as any[];
+
+    // console.log("Active tokens:", activeTokens);
+
+    // Define MemeCoinFactory ABI for events
+    const memeCoinFactoryAbi = [{
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "emoji",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "description",
+          "type": "string"
+        }
+      ],
+      "name": "TokenCreated",
+      "type": "event"
+    }];
+
+    // Get logs for TokenCreated events
+    const logs = await client.getLogs({
+
+      address: '0x90EcC427c18F2d1aAB478822238B9a68Ba7b8CDa' as Hex,
+      events: [memeCoinFactoryAbi[0]],
+      fromBlock: 21661065n,
+      toBlock: 'latest'
+    });
+
+    // Parse and print the logs
+    // console.log("Token Creation Events:", logs);
+    // logs.forEach((log: any, index) => {
+    //   console.log(`\nToken #${index + 1}:`);
+    //   console.log(`Token Address: ${log.args.tokenAddress}`);
+    //   console.log(`Name: ${log.args.name}`);
+    //   console.log(`Symbol: ${log.args.symbol}`);
+    //   console.log(`Emoji: ${log.args.emoji}`);
+    // });
+
+    // Create array of token objects from logs
+    const tokenList = logs.map((log: any) => ({
+      tokenAddress: log.args.tokenAddress,
+      name: log.args.name,
+      symbol: log.args.symbol,
+      emoji: log.args.emoji,
+      description: log.args.description,
+    }));
+
+    // Filter tokens that are in the active list
+    const activeTokenList = tokenList.filter(token =>
+      activeTokens.includes(token.tokenAddress)
+    );
+
+    return activeTokenList;
+
+  } catch (error) {
+    console.error("Error fetching active tokens:", error);
+    throw error;
+  }
+
 }
 
 /**
@@ -193,8 +307,8 @@ async function runAutonomousMode(agent: any, config: any, interval = 10) {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function runChatMode(agent: any, config: any) {
+  const tokens = await fetchAllActiveTokens()
   console.log("Starting chat mode... Type 'exit' to end.");
-
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -203,25 +317,50 @@ async function runChatMode(agent: any, config: any) {
   const question = (prompt: string): Promise<string> =>
     new Promise(resolve => rl.question(prompt, resolve));
 
+  let isEliminationMode = true;
   try {
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const userInput = await question("\nPrompt: ");
+      if (isEliminationMode) {
+        const userInput = `Given these tokens: ${JSON.stringify(tokens)}, please create an elimination condition that removes 50% of these tokens. Explain your reasoning and list which tokens were removed.`;
 
-      if (userInput.toLowerCase() === "exit") {
-        break;
-      }
+        const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
 
-      const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
-
-      for await (const chunk of stream) {
-        if ("agent" in chunk) {
-          console.log(chunk.agent.messages[0].content);
-        } else if ("tools" in chunk) {
-          console.log(chunk.tools.messages[0].content);
+        console.log("\nElimination Process Results:");
+        for await (const chunk of stream) {
+          if ("agent" in chunk) {
+            console.log(chunk.agent.messages[0].content);
+          } else if ("tools" in chunk) {
+            console.log(chunk.tools.messages[0].content);
+          }
+          console.log("-------------------");
         }
-        console.log("-------------------");
+
+        const continuePrompt = await question("\nContinue with another elimination? (yes/no): ");
+        if (continuePrompt.toLowerCase() !== 'yes') {
+          isEliminationMode = false;
+        }
       }
+
+      else {
+        const userInput = await question("\nPrompt: ");
+
+        if (userInput.toLowerCase() === "exit") {
+          break;
+        }
+
+        const stream = await agent.stream({ messages: [new HumanMessage(userInput)] }, config);
+
+        for await (const chunk of stream) {
+          if ("agent" in chunk) {
+            console.log(chunk.agent.messages[0].content);
+          } else if ("tools" in chunk) {
+            console.log(chunk.tools.messages[0].content);
+          }
+          console.log("-------------------");
+        }
+      }
+
     }
   } catch (error) {
     if (error instanceof Error) {

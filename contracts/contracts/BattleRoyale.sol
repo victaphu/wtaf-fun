@@ -37,11 +37,16 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
     Round public currentRound;
     uint256 public constant ROUND_DURATION = 1 minutes;
     uint256 public constant MINIMUM_STAKE = 0.0001 ether;
+    uint256 public constant MAX_ROUNDS = 5;
 
     // Token tracking
     mapping(address => Token) public tokens;
     address[] public activeTokens;
     mapping(address => uint256) private tokenIndex;
+
+    // Round tracking
+    string[] public eliminationRules;
+    mapping(uint256 => string) public roundToEliminationRule;
 
     // Staking and voting tracking
     mapping(address => mapping(address => uint256)) public userStakes;
@@ -58,15 +63,16 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
     );
     event VoteCast(address indexed user, address indexed token, uint256 amount);
     event RoundStarted(uint256 roundNumber);
+    event EliminationRuleAdded(uint256 roundNumber, string rule);
 
     address public creator;
-
     address public memeCoinFactory;
 
     constructor(address admin) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(OPERATOR_ROLE, admin);
         creator = msg.sender;
+        currentRound.roundNumber = 0;
     }
 
     function setMemeCoinFactory(address _memeCoinFactory) external {
@@ -80,15 +86,34 @@ contract BattleRoyale is AccessControl, ReentrancyGuard {
         _;
     }
 
+    function addEliminationRule(string calldata rule) external onlyRole(OPERATOR_ROLE) {
+        require(currentRound.roundNumber < MAX_ROUNDS, "Maximum rounds reached");
+        require(activeTokens.length > 1, "Not enough active tokens");
+        
+        roundToEliminationRule[currentRound.roundNumber] = rule;
+        eliminationRules.push(rule);
+        
+        emit EliminationRuleAdded(currentRound.roundNumber, rule);
+        
+        currentRound.roundNumber++;
+        // if (currentRound.roundNumber >= MAX_ROUNDS || activeTokens.length <= 1) {
+        //     currentState = GameState.FINISHED;
+        //     emit GameStateChanged(GameState.FINISHED);
+        // }
+    }
+
     function startNewRound()
         external
         onlyRole(OPERATOR_ROLE)
         inState(GameState.FINISHED)
     {
-        currentRound.roundNumber++;
+        require(currentRound.roundNumber <= MAX_ROUNDS, "Cannot exceed maximum rounds");
+        currentRound.roundNumber = 0;
         currentRound.startTime = block.timestamp;
         currentRound.endTime = block.timestamp + ROUND_DURATION;
         currentRound.totalStaked = 0;
+        
+        delete eliminationRules;
 
         currentState = GameState.STAKING;
 

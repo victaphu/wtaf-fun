@@ -13,7 +13,7 @@ WTAF.fun is a revolutionary meme token battle royale platform built on BASE chai
 - Dynamic token burning system
 
 ### 🚀 Token Launch System
-- Easy meme token creation via smart contract (0x2564aB19a74276FCAF14B0F149037f2A9d3EE373)
+- Easy meme token creation via smart contract (0x90EcC427c18F2d1aAB478822238B9a68Ba7b8CDa)
 - Custom emoji and token metadata support
 - Instant BASE chain deployment
 - Automated liquidity pool creation
@@ -110,8 +110,8 @@ https://sepolia.basescan.org/tx/0xe10b0383e34d8240214920a53ade9e0995e59eb5dbf254
 
 ## Links
 - Website: https://wtaf.fun
-- Memecoin Factory Smart Contract: 0x2564aB19a74276FCAF14B0F149037f2A9d3EE373 / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0x2564aB19a74276FCAF14B0F149037f2A9d3EE373)
-- Battle Royale Game Smart Contract: 0x8007918A1514dFfbbBd2B1D9c83B883d95763068 / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0x8007918A1514dFfbbBd2B1D9c83B883d95763068)
+- Memecoin Factory Smart Contract: 0x90EcC427c18F2d1aAB478822238B9a68Ba7b8CDa / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0x90EcC427c18F2d1aAB478822238B9a68Ba7b8CDa)
+- Battle Royale Game Smart Contract: 0xFcD18dbA40c43b6e01f09D3D1858B7C4706cf6Ca / BASE Explorer: [View on BaseScan](https://sepolia.basescan.org/address/0xFcD18dbA40c43b6e01f09D3D1858B7C4706cf6Ca)
 - Github: https://github.com/victaphu/wtaf.fun
 
 ## Agentic Source Code

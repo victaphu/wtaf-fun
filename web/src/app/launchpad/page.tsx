@@ -54,7 +54,7 @@ export default function LaunchpadPage() {
       
       const results = await writeContractAsync({
         abi: factoryAbi,
-        address: '0x2564aB19a74276FCAF14B0F149037f2A9d3EE373',
+        address: '0x90EcC427c18F2d1aAB478822238B9a68Ba7b8CDa',
         functionName: 'createToken',
         args: [tokenDetails.tokenName, tokenDetails.tokenSymbol, tokenDetails.emoji, tokenDetails.description],
       });

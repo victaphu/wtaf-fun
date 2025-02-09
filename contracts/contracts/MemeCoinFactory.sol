@@ -13,7 +13,7 @@ contract MemeCoinFactory is AccessControl {
     bytes32 public constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
     IBattleRoyale public immutable gameContract;
 
-    event TokenCreated(address indexed tokenAddress, string name, string symbol, string emoji);
+    event TokenCreated(address indexed tokenAddress, string name, string symbol, string emoji, string description);
 
     constructor(address _gameContract, address admin) {
         gameContract = IBattleRoyale(_gameContract);
@@ -38,7 +38,7 @@ contract MemeCoinFactory is AccessControl {
 
         gameContract.registerToken(address(newToken));
 
-        emit TokenCreated(address(newToken), name, symbol, emoji);
+        emit TokenCreated(address(newToken), name, symbol, emoji, description);
         return address(newToken);
     }
 }

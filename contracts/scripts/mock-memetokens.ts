@@ -31,7 +31,7 @@ async function main() {
   const wallet = new ethers.Wallet(process.env.WALLET_KEY, ethers.provider);
   const factory = await ethers.getContractAt(
     "MemeCoinFactory",
-    "0x2564aB19a74276FCAF14B0F149037f2A9d3EE373",
+    "0x90EcC427c18F2d1aAB478822238B9a68Ba7b8CDa",
     wallet
   );
 
