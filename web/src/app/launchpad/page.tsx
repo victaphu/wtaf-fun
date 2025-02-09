@@ -1,28 +1,26 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import LaunchMemeCoin, { TokenDetails } from '@/shared/LaunchMemeCoin'
-import { BlueCreateWalletButton } from '@/shared/CreateWalletButton'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { PurpleConnectWalletButton } from '@/shared/LoginWalletButton'
 import { useWriteContract } from 'wagmi'
 import { getContractEvents, getTransactionReceipt } from 'viem/actions'
 import { config } from '../wagmi'
 
 export default function LaunchpadPage() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  // const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [launchStatus, setLaunchStatus] = useState<'idle' | 'launching' | 'success'>("idle")
   const [tokenAddress, setTokenAddress] = useState<string | null>(null)
 
   const { writeContractAsync } = useWriteContract();
 
-  const handleWalletSuccess = (address: string) => {
-    setWalletAddress(address)
-  }
+  // const handleWalletSuccess = (address: string) => {
+  //   setWalletAddress(address)
+  // }
 
-  const handleWalletError = (error: Error) => {
-    console.error('Wallet error:', error)
-  }
+  // const handleWalletError = (error: Error) => {
+  //   console.error('Wallet error:', error)
+  // }
 
   const handleLaunch = async (tokenDetails: TokenDetails) => {
     try {

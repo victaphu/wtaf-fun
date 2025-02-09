@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import EmojiPicker from 'emoji-picker-react'
-import { useToast } from '@/hooks/use-toast'
-import { Rocket, Check } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+// import { useToast } from '@/hooks/use-toast'
+// import { Rocket, Check } from 'lucide-react'
+// import { useRouter } from 'next/navigation'
 
 export interface TokenDetails {
   tokenName: string
@@ -21,8 +21,8 @@ export interface TokenDetails {
 }
 
 export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails: TokenDetails) => void }) {
-  const router = useRouter()
-  const { toast } = useToast()
+  // const router = useRouter()
+  // const { toast } = useToast()
   const [formData, setFormData] = useState<TokenDetails>({
     tokenName: '',
     tokenSymbol: '',
@@ -33,8 +33,8 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
   })
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  const [isLaunching, setIsLaunching] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+  // const [isLaunching, setIsLaunching] = useState(false)
+  // const [isSuccess, setIsSuccess] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -79,8 +79,9 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
     // }, 5000)
     
     // console.log('Launching memecoin with data:', formData)
-
-    onLaunch && onLaunch(formData);
+    if (onLaunch) {
+      onLaunch(formData);
+    }
     setDialogOpen(false);
   }
 
@@ -103,7 +104,7 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
               onChange={handleInputChange}
               placeholder="e.g., Doge Coin"
               required
-              disabled={isLaunching}
+              // disabled={isLaunching}
             />
           </div>
 
@@ -116,7 +117,7 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
               onChange={handleInputChange}
               placeholder="e.g., DOGE"
               required
-              disabled={isLaunching}
+              // disabled={isLaunching}
             />
           </div>
 
@@ -130,7 +131,7 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
               onChange={handleInputChange}
               placeholder="e.g., 1000000000"
               required
-              disabled={isLaunching}
+              // disabled={isLaunching}
             />
           </div>
 
@@ -143,7 +144,7 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
               onChange={handleInputChange}
               placeholder="Describe your memecoin..."
               required
-              disabled={isLaunching}
+              // disabled={isLaunching}
             />
           </div>
 
@@ -154,7 +155,7 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
                 type="button"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className="w-full text-left"
-                disabled={isLaunching}
+                // disabled={isLaunching}
               >
                 {formData.emoji || 'Select an emoji...'}
               </Button>
@@ -175,23 +176,12 @@ export default function LaunchMemeCoin({ onLaunch }: { onLaunch?: (tokenDetails:
               value={formData.websiteUrl}
               onChange={handleInputChange}
               placeholder="https://..."
-              disabled={isLaunching}
+              // disabled={isLaunching}
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLaunching}>
-            {isLaunching ? (
-              <>
-                {isSuccess ? (
-                  <Check className="w-4 h-4 mr-2 text-green-500" />
-                ) : (
-                  <Rocket className="w-4 h-4 mr-2 animate-spin" />
-                )}
-                {isSuccess ? 'Launched!' : 'Launching Memecoin...'}
-              </>
-            ) : (
-              'Launch Memecoin'
-            )}
+          <Button type="submit" className="w-full">
+            Launch Memecoin
           </Button>
         </form>
       </DialogContent>
